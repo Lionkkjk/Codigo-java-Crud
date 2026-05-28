@@ -1,0 +1,750 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+// Classe que guarda as info de cada celular no estoque
+class Produto {
+
+    String codigo;
+    String imei;
+    String marca;
+    String modelo;
+    String cor;
+    String armazenamento;
+    int quantidade;
+    double preco;
+    int estoqueMinimo;
+    String status;
+
+    // quando cria um produto, já passa tudo de uma vez.
+    public Produto(String codigo, String imei, String marca, String modelo,
+                   String cor, String armazenamento, int quantidade,
+                   double preco, int estoqueMinimo, String status) {
+        this.codigo = codigo;
+        this.imei = imei;
+        this.marca = marca;
+        this.modelo = modelo;
+        this.cor = cor;
+        this.armazenamento = armazenamento;
+        this.quantidade = quantidade;
+        this.preco = preco;
+        this.estoqueMinimo = estoqueMinimo;
+        this.status = status;
+    }
+
+    public boolean estoqueBaixo() {
+        if (quantidade <= estoqueMinimo) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // Exibe na tela todos os dados dos produto formatadinho
+    public void mostrarDados() {
+        System.out.println("-----------------------------------");
+        System.out.println("Codigo: " + codigo);
+        System.out.println("IMEI: " + imei);
+        System.out.println("Marca: " + marca);
+        System.out.println("Modelo: " + modelo);
+        System.out.print("Cor: " + cor + "\n");           // usando print + \n só pra variar
+        System.out.println("Armazenamento: " + armazenamento);
+        System.out.print("Quantidade: " + quantidade + "\n");
+        System.out.println("Preco: R$ " + preco);
+        System.out.println("Estoque Minimo: " + estoqueMinimo);
+        System.out.print("Status: " + status + "\n\n");   // dois \n aqui de propósito
+
+        if (estoqueBaixo()) {
+            System.out.println("*** ATENCAO: Estoque abaixo do minimo! ***");
+        }
+    }
+}
+
+// Classe que representa um usuário do sistema (gestor ou funcionário)
+class Usuario {
+
+    String nome;
+    String login;
+    String senha;
+    String tipo; // "gestor" ou "funcionario"
+
+    public Usuario(String nome, String login, String senha, String tipo) {
+        this.nome = nome;
+        this.login = login;
+        this.senha = senha;
+        this.tipo = tipo;
+    }
+
+    public boolean eGestor() {
+        if (tipo.equals("gestor")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void mostrarDados() {
+        System.out.println("Nome: " + nome);
+        System.out.print("Login: " + login + "\n");   // misturando
+        System.out.println("Tipo: " + tipo);
+    }
+}
+// Classe que guarda os dados de uma venda realizada.
+class Venda {
+    String data;
+    String codigoProduto;
+    String nomeProduto;
+    String empresa;
+    int quantidade;
+    double valorTotal;
+    String vendedor;
+    String observacao;
+
+    public Venda(String data, String codigoProduto, String nomeProduto,
+                 String empresa, int quantidade, double valorTotal,
+                 String vendedor, String observacao) {
+        this.data = data;
+        this.codigoProduto = codigoProduto;
+        this.nomeProduto = nomeProduto;
+        this.empresa = empresa;
+        this.quantidade = quantidade;
+        this.valorTotal = valorTotal;
+        this.vendedor = vendedor;
+        this.observacao = observacao;
+    }
+
+    public void mostrarDados() {
+        System.out.println("-----------------------------------");
+        System.out.print("Data: " + data + "\n");
+        System.out.println("Produto: " + nomeProduto + " (" + codigoProduto + ")");
+        System.out.print("Empresa: " + empresa + "\n");
+        System.out.println("Quantidade: " + quantidade);
+        System.out.print("Valor Total: R$ " + valorTotal + "\n");
+        System.out.println("Vendedor: " + vendedor);
+
+        if (observacao.equals("") == false) {
+            System.out.println("Observacao: " + observacao);
+        }
+    }
+}
+
+class TechStock {
+
+    // As listas que guardam os dados do sistema (todas vazias no começo).
+    static ArrayList<Produto> listaProdutos = new ArrayList<>();
+    static ArrayList<Usuario> listaUsuarios = new ArrayList<>();
+    static ArrayList<Venda> listaVendas = new ArrayList<>();
+
+    static Usuario usuarioLogado = null;
+
+    static Scanner teclado = new Scanner(System.in);
+
+    public static void main(String[] args) {
+
+        System.out.println("============================================");
+        System.out.println("          BEM-VINDO AO TECHSTOCK             ");
+        System.out.print  ("        Sistema de Gestao de Estoque      \n");
+        System.out.println("============================================");
+
+        if (listaUsuarios.size() == 0) {
+            System.out.println("\nNenhum usuario encontrado no sistema.");
+            System.out.print("Vamos criar o primeiro administrador.\n\n");
+            cadastrarPrimeiroGestor();
+        }fazerLogin();
+    }
+
+    // Cria o admininicial sem precisar de login
+    static void cadastrarPrimeiroGestor() {
+        System.out.print("========== CRIAR ADMINISTRADOR ==========\n");
+
+        System.out.print("Nome completo: ");
+        String nome = teclado.nextLine();
+
+        System.out.print("Login: ");
+        String login = teclado.nextLine();
+
+        String senha = "";
+        while (senha.length() < 8) {
+            System.out.print("Senha (minimo 8 caracteres): ");
+            senha = teclado.nextLine();
+            if (senha.length() < 8) {
+                System.out.println("Senha muito curta, tente novamente.");
+            }
+        }
+
+        Usuario admin = new Usuario(nome, login, senha, "gestor");
+        listaUsuarios.add(admin);
+
+        System.out.println("\nAdministrador criado com sucesso!");
+        System.out.print("Agora faca login com as credenciais informadas.\n\n");
+    }
+
+    // ==================== LOGIN ====================
+
+
+    static void fazerLogin() {
+        int tentativas = 3; // 3 tentativas antes de fechar
+
+        while (tentativas > 0) {
+            System.out.print("\nUsuario: ");
+            String loginDigitado = teclado.nextLine();
+
+            System.out.print("Senha: ");
+            String senhaDigitada = teclado.nextLine();
+
+            if (senhaDigitada.length() < 8) {
+                System.out.println("Erro: A senha deve ter pelo menos 8 caracteres!");
+                tentativas = tentativas - 1;
+                System.out.print("Tentativas restantes: " + tentativas + "\n");
+                continue; // volta pro início do while
+            }
+
+            Usuario usuarioEncontrado = procurarUsuario(loginDigitado, senhaDigitada);
+
+            if (usuarioEncontrado != null) {
+                usuarioLogado = usuarioEncontrado;
+                System.out.println("\nLogin realizado com sucesso!");
+                System.out.print("Bem-vindo(a), " + usuarioLogado.nome + "\n");
+                mostrarMenuPrincipal();
+                return;
+            } else
+            {
+                tentativas = tentativas - 1;
+                System.out.println("Usuario ou senha incorretos!");
+                System.out.print("Tentativas restantes: " + tentativas + "\n");
+            }
+        }
+
+        // Se acabar as tentativas fecha o sistema
+        System.out.println("\nNumero maximo de tentativas atingido.");
+        System.out.print("Sistema encerrado.\n");
+    }
+
+    static Usuario procurarUsuario(String login, String senha) {
+        for (int i = 0; i < listaUsuarios.size(); i++) {
+            Usuario u = listaUsuarios.get(i);
+            if (u.login.equals(login) && u.senha.equals(senha)) {
+                return u;
+            }
+        }return null;
+    }
+
+    // ==================== MENU PRINCIPAL ====================
+
+    static void mostrarMenuPrincipal() {
+        int opcao = 0;
+
+        while (opcao != 9) {
+            System.out.print("\n========== MENU PRINCIPAL ==========\n");
+            System.out.println("1 - Listar produtos");
+            System.out.println("2 - Cadastrar produto");
+            System.out.println("3 - Atualizar produto");
+            System.out.println("4 - Remover produto");
+            System.out.print("5 - Buscar produto\n");
+            System.out.println("6 - Registrar venda");
+            System.out.println("7 - Historico de vendas");
+
+            if (usuarioLogado.eGestor()) {
+                System.out.print("8 - Relatorios (GESTOR)\n");
+            }
+
+            System.out.println("9 - Sair");
+            System.out.print("-----------------------------------\n");
+            System.out.print("Escolha uma opcao: ");
+
+            opcao = Integer.parseInt(teclado.nextLine());
+
+            if (opcao == 1) {
+                listarProdutos();
+            } else if (opcao == 2) {
+                cadastrarProduto();
+            } else if (opcao == 3) {
+                atualizarProduto();
+            } else if (opcao == 4) {
+                removerProduto();
+            } else if (opcao == 5) {
+                buscarProduto();
+            } else if (opcao == 6) {
+                registrarVenda();
+            } else if (opcao == 7) {
+                mostrarHistoricoVendas();
+            } else if (opcao == 8 && usuarioLogado.eGestor()) {
+                mostrarMenuGestor();
+            } else if (opcao == 9) {
+                System.out.print("Saindo do sistema...\n");
+            } else {
+                System.out.println("Opcao invalida!");
+            }
+        }
+    }
+
+    // ==================== PRODUTOS ====================
+
+    static void listarProdutos() {
+        System.out.print("\n========== PRODUTOS EM ESTOQUE ==========\n");
+
+        if (listaProdutos.size() == 0) {
+            System.out.println("Nenhum produto cadastrado.");
+            return;
+        }
+
+        int produtosBaixo = 0;
+
+        for (int i = 0; i < listaProdutos.size(); i++) {
+            Produto p = listaProdutos.get(i);
+            p.mostrarDados();
+            if (p.estoqueBaixo()) {
+
+
+
+                produtosBaixo = produtosBaixo + 1;
+            }
+        }
+// lima bilola feia
+        System.out.print("-----------------------------------\n");
+        System.out.println("Total de produtos: " + listaProdutos.size());
+        if (produtosBaixo > 0) {
+            System.out.print("Produtos com estoque baixo: " + produtosBaixo + "\n");
+        }
+    }
+
+    static void cadastrarProduto() {
+        System.out.print("\n========== CADASTRAR PRODUTO ==========\n");
+
+        System.out.print("Codigo (ex: CEL-001): ");
+        String codigo = teclado.nextLine();
+        if (codigo.equals("")) {
+            System.out.println("Erro: Codigo nao pode ser vazio!");
+            return;
+        }Produto produtoExistente = buscarPorCodigo(codigo);
+        if (produtoExistente != null) {
+            System.out.println("Erro: Ja existe um produto com esse codigo!");
+            return;
+        }
+
+        System.out.print("IMEI (15 numeros): ");
+        String imei = teclado.nextLine();
+        if (imei.length() != 15) {
+            System.out.println("Erro: IMEI deve ter 15 digitos!");
+            return;
+        }
+        // Pega os outros dados
+        System.out.print("Marca: ");
+        String marca = teclado.nextLine();
+        System.out.print("Modelo: ");
+        String modelo = teclado.nextLine();
+        System.out.print("Cor: ");
+        String cor = teclado.nextLine();
+
+        System.out.println("Armazenamento:");
+        System.out.print("1 - 64GB\n2 - 128GB\n3 - 256GB\n4 - 512GB\n5 - 1TB\nOpcao: ");
+        int opcaoArmazenamento = Integer.parseInt(teclado.nextLine());
+        String armazenamento = "128GB";
+        if (opcaoArmazenamento == 1) {
+            armazenamento = "64GB";
+        } else if (opcaoArmazenamento == 2) {
+            armazenamento = "128GB";
+        } else if (opcaoArmazenamento == 3) {
+            armazenamento = "256GB";
+        } else if (opcaoArmazenamento == 4) {
+            armazenamento = "512GB";
+        } else if (opcaoArmazenamento == 5) {
+            armazenamento = "1TB";
+        }
+
+        //
+
+
+        System.out.print("Quantidade: ");
+        int quantidade = Integer.parseInt(teclado.nextLine());
+        if (quantidade < 0) {
+            System.out.println("Erro: Quantidade nao pode ser negativa!");
+            return;
+        }
+
+        System.out.print("Preco R$: ");
+        double preco = Double.parseDouble(teclado.nextLine());
+        if (preco <= 0) {
+            System.out.println("Erro: Preco deve ser maior que zero!");
+            return;
+        }
+
+        System.out.print("Estoque minimo (padrao = 5): ");
+        String entradaMinimo = teclado.nextLine();
+        int estoqueMinimo = 5;
+        if (entradaMinimo.equals("") == false) {
+            estoqueMinimo = Integer.parseInt(entradaMinimo);
+        }
+
+        Produto novoProduto = new Produto(codigo, imei, marca, modelo, cor,
+                armazenamento, quantidade, preco, estoqueMinimo, "disponivel");
+        listaProdutos.add(novoProduto);
+
+        System.out.println("\nProduto cadastrado com sucesso!");
+        novoProduto.mostrarDados();
+    }
+
+    // Atualiza um produto já existente.
+    static void atualizarProduto() {
+        System.out.print("\n========== ATUALIZAR PRODUTO ==========\n");
+        System.out.print("Digite o codigo do produto: ");
+        String codigo = teclado.nextLine();
+
+        Produto produto = buscarPorCodigo(codigo);
+        if (produto == null) {
+            System.out.println("Produto nao encontrado!");
+            return;
+        }
+
+        System.out.println("Produto encontrado:");
+        produto.mostrarDados();
+        System.out.println("\nDeixe em branco para nao alterar o valor.");
+
+        System.out.print("Novo modelo (" + produto.modelo + "): ");
+        String novoModelo = teclado.nextLine();
+        if (novoModelo.equals("") == false) produto.modelo = novoModelo;
+
+        System.out.print("Nova marca (" + produto.marca + "): ");
+        String novaMarca = teclado.nextLine();
+        if (novaMarca.equals("") == false) produto.marca = novaMarca;
+
+        System.out.print("Nova cor (" + produto.cor + "): ");
+        String novaCor = teclado.nextLine();
+        if (novaCor.equals("") == false) produto.cor = novaCor;
+
+        System.out.print("Nova quantidade (" + produto.quantidade + "): ");
+        String novaQtde = teclado.nextLine();
+        if (novaQtde.equals("") == false) produto.quantidade = Integer.parseInt(novaQtde);
+
+        System.out.print("Novo preco (" + produto.preco + "): ");
+        String novoPreco = teclado.nextLine();
+        if (novoPreco.equals("") == false) produto.preco = Double.parseDouble(novoPreco);
+
+        System.out.println("\nProduto atualizado com sucesso!");
+        produto.mostrarDados();
+    }
+
+    //kaue iblola
+
+    static void removerProduto() {
+        System.out.print("\n========== REMOVER PRODUTO ==========\n");
+        System.out.print("Digite o codigo do produto: ");
+        String codigo = teclado.nextLine();
+
+        Produto produto = buscarPorCodigo(codigo);
+        if (produto == null) {
+            System.out.println("Produto nao encontrado!");
+            return;
+        }
+
+        produto.mostrarDados();
+        System.out.print("\nTem certeza que deseja remover? (s/n): ");
+        String resposta = teclado.nextLine();
+
+        if (resposta.equals("s")) {
+            listaProdutos.remove(produto);
+            System.out.println("Produto removido com sucesso!");
+        } else {
+            System.out.println("Remocao cancelada.");
+        }
+    }
+
+    static void buscarProduto() {
+        System.out.print("\n========== BUSCAR PRODUTO ==========\n");
+        System.out.println("1 - Buscar por codigo");
+        System.out.println("2 - Buscar por IMEI");
+        System.out.print("3 - Buscar por marca\nOpcao: ");
+
+        int opcao = Integer.parseInt(teclado.nextLine());
+
+        if (opcao == 1) {
+            System.out.print("Digite o codigo: ");
+            String codigo = teclado.nextLine();
+            Produto p = buscarPorCodigo(codigo);
+            if (p != null) {
+                p.mostrarDados();
+            } else {
+                System.out.println("Produto nao encontrado.");
+            }
+
+        } else if (opcao == 2) {
+            System.out.print("Digite o IMEI: ");
+            String imei = teclado.nextLine();
+            boolean encontrou = false;
+            for (int i = 0; i < listaProdutos.size(); i++) {
+                if (listaProdutos.get(i).imei.equals(imei)) {
+                    listaProdutos.get(i).mostrarDados();
+                    encontrou = true;
+                }
+            }
+            if (encontrou == false) System.out.println("Nenhum produto encontrado com esse IMEI.");
+
+        } else if (opcao == 3) {
+            System.out.print("Digite a marca: ");
+            String marca = teclado.nextLine();
+            boolean encontrou = false;
+            for (int i = 0; i < listaProdutos.size(); i++) {
+                if (listaProdutos.get(i).marca.toUpperCase().contains(marca.toUpperCase())) {
+                    listaProdutos.get(i).mostrarDados();
+                    encontrou = true;
+                }
+            }
+            if (encontrou == false) System.out.println("Nenhum produto encontrado dessa marca.");
+        } else {
+            System.out.println("Opcao invalida!");
+        }
+    }
+
+    // ==================== VENDAS ====================
+
+    static void registrarVenda() {
+        System.out.print("\n========== REGISTRAR VENDA ==========\n");
+        System.out.print("Codigo do produto: ");
+        String codigo = teclado.nextLine();
+
+        Produto produto = buscarPorCodigo(codigo);
+        if (produto == null) {
+            System.out.println("Produto nao encontrado!");
+            return;
+        }
+        //
+        System.out.println("Produto: " + produto.marca + " " + produto.modelo);
+        System.out.println("Estoque disponivel: " + produto.quantidade);
+        System.out.print("Quantidade a vender: ");
+        int quantidade = Integer.parseInt(teclado.nextLine());
+
+        if (quantidade <= 0) {
+            System.out.println("Erro: Quantidade deve ser maior que zero!");
+            return;
+        }
+        if (quantidade > produto.quantidade) {
+            System.out.println("Erro: Estoque insuficiente!");
+            return;
+        }
+
+        System.out.print("Empresa compradora: ");
+        String empresa = teclado.nextLine();
+        System.out.print("Observacao (opcional): ");
+        String observacao = teclado.nextLine();
+
+        double valorTotal = produto.preco * quantidade;
+
+        System.out.println("\n--- RESUMO DA VENDA ---");
+        System.out.print("Produto: " + produto.marca + " " + produto.modelo + "\n");
+        System.out.println("Empresa: " + empresa);
+        System.out.println("Quantidade: " + quantidade);
+        System.out.print("Valor Total: R$ " + valorTotal + "\n\n");
+        System.out.print("Confirmar venda? (s/n): ");
+        String confirmacao = teclado.nextLine();
+
+        if (confirmacao.equals("s")) {
+            produto.quantidade = produto.quantidade - quantidade;
+            if (produto.quantidade == 0) produto.status = "vendido";
+
+            // Cria a venda e adiciona na lista
+            Venda novaVenda = new Venda("Hoje", produto.codigo,
+                    produto.marca + " " + produto.modelo, empresa,
+                    quantidade, valorTotal, usuarioLogado.nome, observacao);
+            listaVendas.add(novaVenda);
+
+            System.out.println("\nVenda registrada com sucesso!");
+            System.out.print("Estoque restante: " + produto.quantidade + "\n");
+        } else {
+            System.out.println("Venda cancelada.");
+        }
+    }
+
+    static void mostrarHistoricoVendas() {
+        System.out.print("\n========== HISTORICO DE VENDAS ==========\n");
+        if (listaVendas.size() == 0) {
+            System.out.println("Nenhuma venda registrada.");
+            return;
+        }
+        double totalGeral = 0;
+        for (int i = 0; i < listaVendas.size(); i++) {
+            Venda v = listaVendas.get(i);
+            v.mostrarDados();
+            totalGeral = totalGeral + v.valorTotal;
+        }
+        System.out.println("-----------------------------------");
+        System.out.print("Total de vendas: " + listaVendas.size() + "\n");
+        System.out.println("Valor total de vendas: R$ " + totalGeral);
+    }
+
+    // ==================== MENU GESTOR ====================
+
+    static void mostrarMenuGestor() {
+        int opcao = 0;
+        while (opcao != 4) {
+            System.out.print("\n========== MENU DO GESTOR ==========\n");
+            System.out.println("1 - Relatorio de estoque");
+            System.out.println("2 - Produtos com estoque baixo");
+            System.out.print("3 - Gerenciar funcionarios\n");
+            System.out.println("4 - Voltar");
+            System.out.print("Opcao: ");
+
+            opcao = Integer.parseInt(teclado.nextLine());
+            if (opcao == 1) {
+                relatorioEstoque();
+            } else if (opcao == 2) {
+                relatorioEstoqueBaixo();
+            } else if (opcao == 3) {
+                menuFuncionarios();
+            } else if (opcao == 4) {
+                System.out.print("Voltando ao menu principal...\n");
+            } else {
+                System.out.println("Opcao invalida!");
+            }
+        }
+    }
+
+    //paulo bilola
+
+    static void relatorioEstoque() {
+        System.out.print("\n========== RELATORIO DE ESTOQUE ==========\n");
+        int totalUnidades = 0;
+        double valorTotal = 0;
+        int estoqueBaixo = 0;
+
+        for (int i = 0; i < listaProdutos.size(); i++) {
+            Produto p = listaProdutos.get(i);
+            totalUnidades = totalUnidades + p.quantidade;
+            valorTotal = valorTotal + (p.preco * p.quantidade);
+            if (p.estoqueBaixo()) estoqueBaixo = estoqueBaixo + 1;
+        }
+
+        System.out.println("Total de produtos: " + listaProdutos.size());
+        System.out.print("Total de unidades: " + totalUnidades + "\n");
+        System.out.println("Valor total em estoque: R$ " + valorTotal);
+        System.out.print("Produtos com estoque baixo: " + estoqueBaixo + "\n");
+        System.out.println("Total de vendas: " + listaVendas.size());
+    }
+
+    static void relatorioEstoqueBaixo() {
+        System.out.print("\n========== ESTOQUE BAIXO ==========\n");
+        boolean temBaixo = false;
+        for (int i = 0; i < listaProdutos.size(); i++) {
+            if (listaProdutos.get(i).estoqueBaixo()) {
+                listaProdutos.get(i).mostrarDados();
+                temBaixo = true;
+            }
+        }
+        if (temBaixo == false) System.out.println("Todos os produtos estao com estoque normal.");
+    }
+
+    static void menuFuncionarios() {
+        int opcao = 0;
+        while (opcao != 4) {
+            System.out.print("\n========== FUNCIONARIOS ==========\n");
+            System.out.println("1 - Listar funcionarios");
+            System.out.print("2 - Cadastrar funcionario\n");
+            System.out.println("3 - Remover funcionario");
+            System.out.print("4 - Voltar\nOpcao: ");
+
+            opcao = Integer.parseInt(teclado.nextLine());
+
+            if (opcao == 1) {
+                System.out.print("\n--- FUNCIONARIOS CADASTRADOS ---\n");
+                for (int i = 0; i < listaUsuarios.size(); i++) {
+                    listaUsuarios.get(i).mostrarDados();
+                    System.out.println("-------------------");
+                }
+
+            } else if (opcao == 2) {
+                System.out.print("\n--- CADASTRAR FUNCIONARIO ---\n");
+                System.out.print("Nome completo: ");
+                String nome = teclado.nextLine();
+                System.out.print("Login: ");
+                String login = teclado.nextLine();
+
+                boolean loginExiste = false;
+                for (int i = 0; i < listaUsuarios.size(); i++) {
+                    if (listaUsuarios.get(i).login.equals(login)) loginExiste = true;
+                }
+                if (loginExiste) {
+                    System.out.println("Erro: Este login ja existe!");
+                } else {
+                    System.out.print("Senha (minimo 8 caracteres): ");
+                    String senha = teclado.nextLine();
+                    if (senha.length() < 8) {
+                        System.out.println("Erro: Senha muito curta!");
+                    } else {
+                        System.out.print("Tipo (1-Funcionario, 2-Gestor): ");
+                        int tipo = Integer.parseInt(teclado.nextLine());
+                        String perfil;
+                        if (tipo == 2) {
+                            perfil = "gestor";
+                        } else {
+                            perfil = "funcionario";
+                        }
+                        Usuario novo = new Usuario(nome, login, senha, perfil);
+                        listaUsuarios.add(novo);
+                        System.out.println("Funcionario cadastrado com sucesso!");
+                    }
+                }
+
+            } else if (opcao == 3) {
+                removerFuncionario();
+            } else if (opcao == 4) {
+                System.out.print("Voltando...\n");
+            } else {
+                System.out.println("Opcao invalida!");
+            }
+        }
+    }
+
+    static void removerFuncionario() {
+        System.out.print("\n========== REMOVER FUNCIONARIO ==========\n");
+        if (listaUsuarios.size() == 0) {
+            System.out.println("Nenhum funcionario cadastrado.");
+            return;
+        }
+
+
+
+        System.out.println("Funcionarios cadastrados:");
+        for (int i = 0; i < listaUsuarios.size(); i++) {
+            Usuario u = listaUsuarios.get(i);
+            System.out.println((i+1) + " - " + u.nome + " (" + u.login + ") - " + u.tipo);
+        }
+
+        System.out.print("Digite o login do funcionario a remover: ");
+        String loginRemover = teclado.nextLine();
+
+        Usuario usuarioRemover = null;
+        for (int i = 0; i < listaUsuarios.size(); i++) {
+            if (listaUsuarios.get(i).login.equals(loginRemover)) {
+                usuarioRemover = listaUsuarios.get(i);
+                break;
+            }
+        }
+
+        if (usuarioRemover == null) {
+            System.out.println("Funcionario nao encontrado.");
+            return;
+        }
+        if (usuarioRemover.login.equals(usuarioLogado.login)) {
+            System.out.println("Voce nao pode remover seu proprio usuario!");
+            return;
+        }
+
+        usuarioRemover.mostrarDados();
+        System.out.print("Tem certeza que deseja remover este funcionario? (s/n): ");
+        String confirmacao = teclado.nextLine();
+        if (confirmacao.equals("s")) {
+            listaUsuarios.remove(usuarioRemover);
+            System.out.println("Funcionario removido com sucesso!");
+        } else {
+            System.out.println("Remocao cancelada.");
+        }
+    }
+
+    static Produto buscarPorCodigo(String codigo) {
+        for (int i = 0; i < listaProdutos.size(); i++) {
+            Produto p = listaProdutos.get(i);
+            if (p.codigo.equalsIgnoreCase(codigo)) {
+                return p;
+            }
+        }
+        return null;
+    }
+}
