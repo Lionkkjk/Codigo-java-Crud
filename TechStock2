@@ -49,7 +49,7 @@ class Produto {
         System.out.print("Cor: " + cor + "\n");
         System.out.println("Armazenamento: " + armazenamento);
         System.out.print("Quantidade: " + quantidade + "\n");
-        System.out.println("Preco: R$ " + preco);
+        System.out.println("Preço: R$ " + preco);
         System.out.println("Estoque Minimo: " + estoqueMinimo);
         System.out.print("Status: " + status + "\n\n");
 
@@ -88,7 +88,7 @@ class Usuario {
         System.out.println("Tipo: " + tipo);
     }
 }
-// Classe que guarda os dados de uma venda realizada.
+
 class Venda {
     String data;
     String codigoProduto;
@@ -152,7 +152,6 @@ class TechStock {
         }fazerLogin();
     }
 
-    // Cria o admininicial sem precisar de login
     static void cadastrarPrimeiroGestor() {
         System.out.print("========== CRIAR ADMINISTRADOR ==========\n");
 
@@ -296,7 +295,7 @@ class TechStock {
                 produtosBaixo = produtosBaixo + 1;
             }
         }
-// lima bilola feia
+
         System.out.print("-----------------------------------\n");
         System.out.println("Total de produtos: " + listaProdutos.size());
         if (produtosBaixo > 0) {
@@ -347,8 +346,7 @@ class TechStock {
         } else if (opcaoArmazenamento == 5) {
             armazenamento = "1TB";
         }
-
-        /
+        
 
 
         System.out.print("Quantidade: ");
@@ -358,10 +356,10 @@ class TechStock {
             return;
         }
 
-        System.out.print("Preco R$: ");
+        System.out.print("Preço R$: ");
         double preco = Double.parseDouble(teclado.nextLine());
         if (preco <= 0) {
-            System.out.println("Erro: Preco deve ser maior que zero!");
+            System.out.println("Erro: Preço deve ser maior que zero!");
             return;
         }
 
@@ -411,15 +409,13 @@ class TechStock {
         String novaQtde = teclado.nextLine();
         if (novaQtde.equals("") == false) produto.quantidade = Integer.parseInt(novaQtde);
 
-        System.out.print("Novo preco (" + produto.preco + "): ");
+        System.out.print("Novo preço (" + produto.preco + "): ");
         String novoPreco = teclado.nextLine();
         if (novoPreco.equals("") == false) produto.preco = Double.parseDouble(novoPreco);
 
         System.out.println("\nProduto atualizado com sucesso!");
         produto.mostrarDados();
     }
-
-    //kaue iblola
 
     static void removerProduto() {
         System.out.print("\n========== REMOVER PRODUTO ==========\n");
@@ -536,7 +532,6 @@ class TechStock {
             produto.quantidade = produto.quantidade - quantidade;
             if (produto.quantidade == 0) produto.status = "vendido";
 
-            // Cria a venda e adiciona na lista
             Venda novaVenda = new Venda("Hoje", produto.codigo,
                     produto.marca + " " + produto.modelo, empresa,
                     quantidade, valorTotal, usuarioLogado.nome, observacao);
