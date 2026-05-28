@@ -1,7 +1,6 @@
 import java.util.ArrayList;
 import java.util.Scanner;
 
-// Classe que guarda as info de cada celular no estoque
 class Produto {
 
     String codigo;
@@ -15,7 +14,6 @@ class Produto {
     int estoqueMinimo;
     String status;
 
-    // quando cria um produto, já passa tudo de uma vez.
     public Produto(String codigo, String imei, String marca, String modelo,
                    String cor, String armazenamento, int quantidade,
                    double preco, int estoqueMinimo, String status) {
@@ -39,16 +37,15 @@ class Produto {
         }
     }
 
-    // Exibe na tela todos os dados dos produto formatadinho
     public void mostrarDados() {
         System.out.println("-----------------------------------");
         System.out.println("Codigo: " + codigo);
         System.out.println("IMEI: " + imei);
         System.out.println("Marca: " + marca);
         System.out.println("Modelo: " + modelo);
-        System.out.print("Cor: " + cor + "\n");
+        System.out.println("Cor: " + cor + "\n");
         System.out.println("Armazenamento: " + armazenamento);
-        System.out.print("Quantidade: " + quantidade + "\n");
+        System.out.println("Quantidade: " + quantidade + "\n");
         System.out.println("Preço: R$ " + preco);
         System.out.println("Estoque Minimo: " + estoqueMinimo);
         System.out.print("Status: " + status + "\n\n");
@@ -59,7 +56,6 @@ class Produto {
     }
 }
 
-// Classe que representa um usuário do sistema (gestor ou funcionário)
 class Usuario {
 
     String nome;
@@ -323,7 +319,7 @@ class TechStock {
             System.out.println("Erro: IMEI deve ter 15 digitos!");
             return;
         }
-        // Pega os outros dados
+
         System.out.print("Marca: ");
         String marca = teclado.nextLine();
         System.out.print("Modelo: ");
@@ -346,7 +342,7 @@ class TechStock {
         } else if (opcaoArmazenamento == 5) {
             armazenamento = "1TB";
         }
-        
+
 
 
         System.out.print("Quantidade: ");
