@@ -46,12 +46,12 @@ class Produto {
         System.out.println("IMEI: " + imei);
         System.out.println("Marca: " + marca);
         System.out.println("Modelo: " + modelo);
-        System.out.print("Cor: " + cor + "\n");           // usando print + \n só pra variar
+        System.out.print("Cor: " + cor + "\n");
         System.out.println("Armazenamento: " + armazenamento);
         System.out.print("Quantidade: " + quantidade + "\n");
         System.out.println("Preco: R$ " + preco);
         System.out.println("Estoque Minimo: " + estoqueMinimo);
-        System.out.print("Status: " + status + "\n\n");   // dois \n aqui de propósito
+        System.out.print("Status: " + status + "\n\n");
 
         if (estoqueBaixo()) {
             System.out.println("*** ATENCAO: Estoque abaixo do minimo! ***");
@@ -179,8 +179,6 @@ class TechStock {
     }
 
     // ==================== LOGIN ====================
-
-
     static void fazerLogin() {
         int tentativas = 3; // 3 tentativas antes de fechar
 
@@ -214,7 +212,6 @@ class TechStock {
             }
         }
 
-        // Se acabar as tentativas fecha o sistema
         System.out.println("\nNumero maximo de tentativas atingido.");
         System.out.print("Sistema encerrado.\n");
     }
@@ -351,7 +348,7 @@ class TechStock {
             armazenamento = "1TB";
         }
 
-        //
+        /
 
 
         System.out.print("Quantidade: ");
@@ -383,7 +380,6 @@ class TechStock {
         novoProduto.mostrarDados();
     }
 
-    // Atualiza um produto já existente.
     static void atualizarProduto() {
         System.out.print("\n========== ATUALIZAR PRODUTO ==========\n");
         System.out.print("Digite o codigo do produto: ");
@@ -506,7 +502,7 @@ class TechStock {
             System.out.println("Produto nao encontrado!");
             return;
         }
-        //
+
         System.out.println("Produto: " + produto.marca + " " + produto.modelo);
         System.out.println("Estoque disponivel: " + produto.quantidade);
         System.out.print("Quantidade a vender: ");
